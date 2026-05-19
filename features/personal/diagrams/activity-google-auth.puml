@@ -1,0 +1,37 @@
+@startuml
+title Авторизация "Google OAuth2"
+
+start
+
+:Пользователь нажимает "Login Google";
+:Redirect на /oauth2/authorization/google;
+:Spring Security генерирует state;
+:Redirect на Google;
+
+:Пользователь авторизуется в Google;
+:Google возвращает code и state;
+
+if (state валиден?) then (да)
+  :Spring Security меняет code на access token;
+  :Получает OAuth2User attributes;
+else (нет)
+  :Ошибка авторизации;
+  stop
+endif
+
+if (user найден по Google sub?) then (да)
+  :Использовать найденного пользователя;
+else (нет)
+  if (user найден по email?) then (да)
+    :Привязать Google sub к пользователю;
+  else (нет)
+    :Создать нового пользователя;
+  endif
+endif
+
+:Сгенерировать JWT;
+:Удалить сессию OAuth2 авторизации;
+:Redirect на /oauth/success?token=JWT;
+
+stop
+@enduml

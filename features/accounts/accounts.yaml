@@ -1,0 +1,19 @@
+examples:
+    account_not_found:
+        summary: Счет не найден
+        value:
+            type: about:blank
+            title: Business exception
+            status: 404
+            detail: Account not found
+            instance: /api/...
+            code: account_not_found
+    account_less_zero:
+        summary: Отрицательный баланс счета
+        value:
+            type: about:blank
+            title: Business exception
+            status: 404
+            detail: Account less zero
+            instance: /api/...
+            code: account_less_zero

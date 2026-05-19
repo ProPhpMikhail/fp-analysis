@@ -1,0 +1,38 @@
+paths:
+    authorization:
+        get:
+            tags:
+                - Personal
+            summary: Авторизация через Google
+            description: Перенаправляет пользователя на страницу авторизации Google OAuth2
+            operationId: googleAuthorization
+            responses:
+                '302':
+                    description: Редирект на страницу авторизации Google OAuth2
+
+    callback:
+        get:
+            tags:
+                - Personal
+            summary: Google OAuth2 callback
+            description: Callback, вызываемый Google после успешной авторизации пользователя
+            operationId: googleCallback
+
+            parameters:
+                - name: code
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+                  description: Код авторизации для обмена на access token
+
+                - name: state
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+                  description: OAuth2 state параметр
+
+            responses:
+                '302':
+                    description: Редирект на фронт страницу авторизации с JWT

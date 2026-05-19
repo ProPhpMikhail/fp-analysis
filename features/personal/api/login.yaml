@@ -1,0 +1,132 @@
+path:
+    post:
+        tags:
+            - Personal
+        summary: Авторизация по email и password
+        description: Выполняет вход пользователя и возвращает JWT токен и данные профиля
+        operationId: login
+        requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/schemas/LoginRequest'
+                    examples:
+                        default:
+                            summary: Пример запроса
+                            value:
+                                email: john@alive.local
+                                password: password123
+        responses:
+            '200':
+                description: Успешная авторизация
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/schemas/LoginResponse'
+                        examples:
+                            success:
+                                summary: Успешный ответ
+                                value:
+                                    success: true
+                                    data:
+                                        token: eyJhbGciOiJIUzI1NiJ9.example.jwt.token
+                                        email: john@alive.local
+                                        firstName: John
+                                        lastName: Doe
+                                        phone: "+79996663333"
+                                        role: USER
+            '409':
+                description: Бизнес ошибка
+                content:
+                    application/json:
+                        schema:
+                            $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                        examples:
+                            email_not_confirmed:
+                                summary: Email не подтвержден
+                                value:
+                                    type: about:blank
+                                    title: Business exception
+                                    status: 409
+                                    detail: Email not confirmed
+                                    instance: /api/personal/login
+                                    code: email_not_confirmed
+            401:
+                description: Unauthorized
+                content:
+                    application/json:
+                        schema:
+                            $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                        examples:
+                            unauthorized:
+                                allOf:
+                                    -   $ref: '../../../shared/api/examples.yaml#/examples/unauthorized'
+                                    -   value:
+                                            instance: '/api/personal/changePassword'
+                            invalid_credentials:
+                                allOf:
+                                    -   $ref: './examples.yaml#/examples/invalid_credentials'
+                                    -   value:
+                                            instance: '/api/personal/changePassword'
+            '404':
+                description: Пользователь не найден
+                content:
+                    application/json:
+                        schema:
+                            $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                        examples:
+                            user_not_found:
+                                $ref: '../../../shared/api/examples.yaml#/examples/user_not_found'
+
+schemas:
+    LoginRequest:
+        type: object
+        additionalProperties: false
+        required:
+            - email
+            - password
+        properties:
+            email:
+                type: string
+                format: email
+            password:
+                type: string
+                format: password
+
+    LoginResponse:
+        allOf:
+            -   $ref: '../../../shared/api/schemas.yaml#/schemas/ApiResponse'
+            -   type: object
+                properties:
+                    data:
+                        $ref: '#/schemas/LoginResponseData'
+    LoginResponseData:
+        type: object
+        required:
+            -   token
+            -   email
+            -   firstName
+            -   lastName
+            -   phone
+            -   role
+        properties:
+            token:
+                type: string
+            email:
+                type: string
+                format: email
+            firstName:
+                type: string
+                nullable: true
+            lastName:
+                type: string
+                nullable: true
+            phone:
+                type: string
+                nullable: true
+            role:
+                type: string
+                enum:
+                    - USER
+                    - ADMIN

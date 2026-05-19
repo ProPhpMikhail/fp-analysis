@@ -1,0 +1,124 @@
+path:
+    recover:
+        post:
+            tags:
+                - Personal
+            summary: Восстановление пароля
+            description: Запрос восстановления пароля с отправкой ссылки на восстановления на почту
+            operationId: recover
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/schemas/RecoverEmailRequest'
+                        examples:
+                            default:
+                                summary: Пример запроса
+                                value:
+                                    email: john@alive.local
+            responses:
+                204:
+                    description: Успешный ответ
+                404:
+                    description: Пользователь не найден
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                            examples:
+                                user_not_found:
+                                    $ref: '../../../shared/api/examples.yaml#/examples/user_not_found'
+    recoverByToken:
+        get:
+            tags:
+                - Personal
+            summary: Проверка валидности токена
+            description: Проверяет валидность токена смены пароля
+            operationId: validToken
+            parameters:
+                - name: token
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                  description: token восстановления пароля
+            responses:
+                200:
+                    description: Ответ
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '../../../shared/api/schemas.yaml#/schemas/BooleanResponse'
+                        examples:
+                            success:
+                                $ref: '../../../shared/api/examples.yaml#/examples/boolean_response'
+        post:
+            tags:
+                - Personal
+            summary: Смена пароля через восстановление
+            description: Смена пароля через токен
+            operationId: recoverChangePassword
+            parameters:
+                - name: token
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                  description: token восстановления пароля
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/schemas/ResetPasswordRequest'
+                        examples:
+                            default:
+                                summary: Пример запроса
+                                value:
+                                    password: 'password123'
+            responses:
+                204:
+                    description: Успешный ответ
+                400:
+                    description: Ошибка валидации
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '../../../shared/api/schemas.yaml#/schemas/ValidationErrorResponse'
+                            examples:
+                                validation_error:
+                                    $ref: '../../../shared/api/examples.yaml#/examples/validation_error'
+                404:
+                    description: Пользователь не найден
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                            examples:
+                                user_not_found:
+                                    $ref: '../../../shared/api/examples.yaml#/examples/user_not_found'
+
+schemas:
+    RecoverEmailRequest:
+        type: object
+        additionalProperties: false
+        required:
+            - email
+        properties:
+            email:
+                type: string
+                format: email
+    ResetPasswordRequest:
+        type: object
+        additionalProperties: false
+        required:
+            - password
+        properties:
+            password:
+                type: string
+                format: password
+                minLength: 8
+                pattern: '^(?=.*[A-Za-z])(?=.*\d).+$'
+                description: "Минимум 8 символов. Минимум одна английская буква и одна цифра"
+

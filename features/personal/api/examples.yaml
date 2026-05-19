@@ -1,0 +1,19 @@
+examples:
+    invalid_credentials:
+        summary: Неверный доступ
+        value:
+            type: about:blank
+            title: Business exception
+            status: 401
+            detail: Invalid credentials
+            instance: /api/...
+            code: invalid_credentials
+    email_not_confirmed:
+        summary: Email не подтвержден
+        value:
+            type: about:blank
+            title: Business exception
+            status: 409
+            detail: Email not confirmed
+            instance: /api/...
+            code: email_not_confirmed

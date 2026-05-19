@@ -1,0 +1,83 @@
+path:
+    post:
+        tags:
+            - Personal
+        summary: Регистрация по email и password
+        description: Выполняет регистрацию пользователя
+        operationId: register
+        requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/schemas/RegisterRequest'
+                    examples:
+                        default:
+                            summary: Пример запроса
+                            value:
+                                email: john@alive.local
+                                password: password123
+        responses:
+            '201':
+                description: Успешная регистрация
+
+            400:
+                description: Ошибка валидации
+                content:
+                    application/json:
+                        schema:
+                            $ref: '../../../shared/api/schemas.yaml#/schemas/ValidationErrorResponse'
+                        examples:
+                            validation_error:
+                                summary: Ошибка валидации
+                                value:
+                                    type: about:blank
+                                    title: Validation error
+                                    status: 400
+                                    instance: /api/personal/register
+                                    code: validation_error
+                                    errors:
+                                        - code: validation_error
+                                          message: "size must be between 8 and 64"
+                                          field: password
+
+            '409':
+                description: Бизнес ошибка
+                content:
+                    application/json:
+                        schema:
+                            $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                        examples:
+                            email_not_confirmed:
+                                summary: Email не подтвержден
+                                value:
+                                    type: about:blank
+                                    title: Business exception
+                                    status: 409
+                                    detail: Email not confirmed
+                                    instance: /api/personal/register
+                                    code: email_not_confirmed
+                            email_exists:
+                                summary: Email уже существует
+                                value:
+                                    type: about:blank
+                                    title: Business exception
+                                    status: 409
+                                    detail: Email exists
+                                    instance: /api/personal/register
+                                    code: email_exists
+
+schemas:
+    RegisterRequest:
+        type: object
+        additionalProperties: false
+        required:
+            - email
+            - password
+        properties:
+            email:
+                type: string
+                format: email
+            password:
+                type: string
+                format: password

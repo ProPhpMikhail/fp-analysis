@@ -1,0 +1,26 @@
+@startuml
+
+autonumber
+
+actor User
+participant Frontend
+participant Backend
+database PostgreSQL
+
+User -> Frontend: Ввод email/password
+Frontend -> Backend: POST /api/personal/login
+
+Backend -> PostgreSQL: findByEmail(email)
+
+alt User not found
+    Backend --> Frontend: 404 user_not_found
+else Email not confirmed
+    Backend --> Frontend: 409 email_not_confirmed
+else Invalid password
+    Backend --> Frontend: 401 invalid_credentials
+else Success
+    Backend -> Backend: generate JWT
+    Backend --> Frontend: 200 LoginResponse
+end
+
+@enduml

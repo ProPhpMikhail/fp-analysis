@@ -1,0 +1,25 @@
+@startuml
+title Personal/Auth - Component Diagram
+
+skinparam componentStyle rectangle
+
+component "PersonalController" as Controller
+component "PersonalService" as Service
+component "OAuth2SuccessHandler" as OAuthHandler
+component "JwtService" as Jwt
+component "UserDetailsService" as UserDetails
+component "UserRepository" as UserRepo
+database "PostgreSQL" as DB
+component "Google OAuth2" as Google
+
+Controller --> Service : login/register
+Service --> UserRepo : users
+Service --> Jwt : issue JWT
+Service --> UserDetails : load user
+OAuthHandler --> UserRepo : find/link/create user
+OAuthHandler --> Jwt : issue JWT
+OAuthHandler --> UserDetails : load user
+UserRepo --> DB
+OAuthHandler --> Google : OAuth2 attributes via Spring Security
+
+@enduml

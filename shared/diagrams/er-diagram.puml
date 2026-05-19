@@ -1,0 +1,143 @@
+@startuml
+'skinparam dpi 600
+
+title FINPLAN - ER Diagram
+
+hide circle
+skinparam linetype ortho
+
+entity "users" as users {
+  * id : BIGSERIAL <<PK>>
+  --
+  email : VARCHAR(255) <<UNIQUE>>
+  google_sub : VARCHAR(255) <<UNIQUE>>
+  code : VARCHAR(255)
+  first_name : VARCHAR(255)
+  last_name : VARCHAR(255)
+  phone : VARCHAR(255)
+  recover_token_hash : VARCHAR(255)
+  password : VARCHAR(255)
+  role : VARCHAR(50)
+}
+
+entity "telegram_accounts" as telegram_accounts {
+  * id : BIGSERIAL <<PK>>
+  --
+  user_id : BIGINT <<FK, UNIQUE>>
+  tg_user_id : BIGINT <<UNIQUE>>
+  tg_chat_id : BIGINT
+  is_active : BOOLEAN
+  linked_at : TIMESTAMPTZ
+  updated_at : TIMESTAMPTZ
+}
+
+entity "telegram_tokens" as telegram_tokens {
+  * id : BIGSERIAL <<PK>>
+  --
+  user_id : BIGINT <<FK, UNIQUE>>
+  token_hash : VARCHAR(64)
+  expires_at : TIMESTAMPTZ
+  used_at : TIMESTAMPTZ
+  created_at : TIMESTAMPTZ
+}
+
+entity "notifications" as notifications {
+  * id : BIGSERIAL <<PK>>
+  --
+  user_id : BIGINT <<FK>>
+  created_at : TIMESTAMP
+  title : VARCHAR(255)
+  text : TEXT
+  status : VARCHAR(50)
+}
+
+entity "accounts" as accounts {
+  * id : BIGSERIAL <<PK>>
+  --
+  user_id : BIGINT <<FK>>
+  name : VARCHAR(100)
+  sort : INT
+  currency : VARCHAR(3)
+  balance : NUMERIC(14,2)
+  version : BIGINT
+}
+
+entity "categories" as categories {
+  * id : BIGSERIAL <<PK>>
+  --
+  user_id : BIGINT <<FK>>
+  sort : INT
+  name : VARCHAR(255)
+}
+
+entity "transactions" as transactions {
+  * id : BIGSERIAL <<PK>>
+  --
+  user_id : BIGINT <<FK>>
+  account_id : BIGINT <<FK>>
+  category_id : BIGINT <<FK, nullable>>
+  sort : INT
+  name : VARCHAR(255)
+  amount : NUMERIC(14,2)
+  created_at : TIMESTAMP
+  latitude : NUMERIC(9,6)
+  longitude : NUMERIC(9,6)
+}
+
+entity "transfers" as transfers {
+  * id : BIGSERIAL <<PK>>
+  --
+  user_id : BIGINT <<FK>>
+  from_account_id : BIGINT <<FK>>
+  from_amount : NUMERIC(14,2)
+  to_account_id : BIGINT <<FK>>
+  to_amount : NUMERIC(14,2)
+  previous_id : INT
+  created_at : TIMESTAMP
+}
+
+entity "plans" as plans {
+  * id : BIGSERIAL <<PK>>
+  --
+  user_id : BIGINT <<FK>>
+  name : VARCHAR(255)
+  sort : INT
+  type : VARCHAR(3)
+  scope_type : VARCHAR(20)
+  account_id : BIGINT <<FK>>
+  amount : NUMERIC(14,2)
+  date_from : TIMESTAMP
+  date_to : TIMESTAMP
+  created_at : TIMESTAMP
+}
+
+entity "plan_items" as plan_items {
+  * id : BIGSERIAL <<PK>>
+  --
+  sort : INT
+  plan_id : BIGINT <<FK>>
+  category_id : BIGINT <<FK>>
+  amount : NUMERIC(14,2)
+  created_at : TIMESTAMP
+}
+
+users ||--o| telegram_accounts : has
+users ||--o| telegram_tokens : has
+users ||--o{ notifications : receives
+users ||--o{ accounts : owns
+users ||--o{ categories : owns
+users ||--o{ transactions : owns
+users ||--o{ transfers : owns
+users ||--o{ plans : owns
+
+accounts ||--o{ transactions : contains
+categories ||--o{ transactions : classifies
+
+accounts ||--o{ transfers : from_account
+accounts ||--o{ transfers : to_account
+
+accounts ||--o{ plans : scoped_to
+plans ||--o{ plan_items : contains
+categories ||--o{ plan_items : budgets
+
+@enduml

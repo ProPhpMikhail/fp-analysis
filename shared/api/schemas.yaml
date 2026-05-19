@@ -1,0 +1,142 @@
+schemas:
+    ApiResponse:
+        type: object
+        required:
+            - success
+            - data
+        properties:
+            success:
+                type: boolean
+                example: true
+            data:
+                nullable: true
+            meta:
+                nullable: true
+
+    PageableResponse:
+        allOf:
+            - $ref: '#/schemas/ApiResponse'
+            - type: object
+              required:
+                  - data
+              properties:
+                  data:
+                      type: object
+                      properties:
+                          content:
+                              type: array
+                          pageable:
+                              type: object
+                              properties:
+                                  pageNumber:
+                                      type: number
+                                  pageSize:
+                                      type: number
+                                  offset:
+                                      type: number
+                                  paged:
+                                      type: boolean
+                                  unpaged:
+                                      type: boolean
+                                  sort:
+                                      type: object
+                                      properties:
+                                          sorted:
+                                              type: boolean
+                                          empty:
+                                              type: boolean
+                                          unsorted:
+                                              type: boolean
+                          last:
+                              type: boolean
+                          first:
+                              type: boolean
+                          totalPages:
+                              type: number
+                          totalElements:
+                              type: number
+                          size:
+                              type: number
+                          number:
+                              type: number
+                          sort:
+                              type: object
+                              properties:
+                                  sorted:
+                                      type: boolean
+                                  empty:
+                                      type: boolean
+                                  unsorted:
+                                      type: boolean
+                          numberOfElements:
+                              type: number
+                          empty:
+                              type: boolean
+
+
+
+
+
+    BooleanResponse:
+        allOf:
+            -   $ref: '#/schemas/ApiResponse'
+            -   type: object
+                required:
+                    - data
+                properties:
+                    data:
+                        type: boolean
+
+    ProblemDetailsResponse:
+        type: object
+        required:
+            - type
+            - title
+            - status
+            - code
+        properties:
+            type:
+                type: string
+                example: about:blank
+            title:
+                type: string
+            status:
+                type: integer
+            detail:
+                type: string
+                nullable: true
+            instance:
+                type: string
+            code:
+                type: string
+
+    ErrorResponse:
+        allOf:
+            -   $ref: '#/schemas/ProblemDetailsResponse'
+
+    ValidationErrorResponse:
+        allOf:
+            -   $ref: '#/schemas/ProblemDetailsResponse'
+            -   type: object
+                required:
+                    - errors
+                properties:
+                    errors:
+                        type: array
+                        items:
+                            $ref: '#/schemas/ValidationErrorField'
+
+    ValidationErrorField:
+        type: object
+        additionalProperties: false
+        required:
+            - field
+            - message
+            - code
+        properties:
+            field:
+                type: string
+            message:
+                type: string
+            code:
+                type: string

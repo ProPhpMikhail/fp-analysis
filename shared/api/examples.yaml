@@ -1,0 +1,36 @@
+examples:
+    unauthorized:
+        summary: Unauthorized
+        value:
+            type: about:blank
+            title: Unauthorized
+            status: 401
+            detail: Authentication token is missing or invalid
+            instance: /api/...
+            code: unauthorized
+    validation_error:
+        summary: Ошибка валидации
+        value:
+            type: about:blank
+            title: Validation error
+            status: 400
+            instance: /api/...
+            code: validation_error
+            errors:
+                -   code: validation_error
+                    message: "Field error"
+                    field: field
+    user_not_found:
+        summary: Пользователь не найден
+        value:
+            type: about:blank
+            title: Business exception
+            status: 404
+            detail: User not found
+            instance: /api/...
+            code: user_not_found
+    boolean_response:
+        summary: Успешный ответ
+        value:
+            success: true
+            data: true

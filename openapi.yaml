@@ -1,0 +1,96 @@
+openapi: 3.0.3
+info:
+    title: FINPLAN API
+    version: 1.0.0
+
+servers:
+    - url: http://localhost:8082
+      description: Dev
+
+tags:
+    - name: Personal
+    - name: Transactions
+
+paths:
+    # Personal
+    /api/v1/personal/login:
+        $ref: './features/personal/api/login.yaml#/path'
+    /api/v1/personal/register:
+        $ref: './features/personal/api/register.yaml#/path'
+    /api/v1/personal/confirm:
+        $ref: './features/personal/api/confirm.yaml#/path'
+    /api/v1/personal/resend:
+        $ref: './features/personal/api/resend.yaml#/path'
+    /api/v1/personal/isNonePassword:
+        $ref: './features/personal/api/isNonePassword.yaml#/path'
+    /api/v1/personal/changePassword:
+        $ref: './features/personal/api/changePassword.yaml#/path'
+    /api/v1/personal/userinfo:
+        $ref: './features/personal/api/userinfo.yaml#/path'
+    /api/v1/personal/recover:
+        $ref: './features/personal/api/recover.yaml#/path/recover'
+    /api/v1/personal/recover/{token}:
+        $ref: './features/personal/api/recover.yaml#/path/recoverByToken'
+    /oauth2/authorization/google:
+        $ref: './features/personal/api/google-auth.yaml#/paths/authorization'
+    /login/oauth2/code/google:
+        $ref: './features/personal/api/google-auth.yaml#/paths/callback'
+
+    # Transactions
+    /api/v1/accounts/{accountId}/transactions:
+        $ref: './features/transactions/api/transactions.yaml#/path/transactions'
+    /api/v1/accounts/{accountId}/transactions/{transactionId}:
+        $ref: './features/transactions/api/transactions.yaml#/path/transactionId'
+
+components:
+    securitySchemes:
+        JWT:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+    schemas:
+        # Personal
+        LoginRequest:
+            $ref: './features/personal/api/login.yaml#/schemas/LoginRequest'
+        LoginResponse:
+            $ref: './features/personal/api/login.yaml#/schemas/LoginResponse'
+        UserInfo:
+            $ref: './features/personal/api/schemas.yaml#/schemas/UserInfo'
+        RegisterRequest:
+            $ref: './features/personal/api/register.yaml#/schemas/RegisterRequest'
+        UserInfoCreate:
+            $ref: './features/personal/api/userinfo.yaml#/schemas/UserInfoCreate'
+        RecoverEmailRequest:
+            $ref: './features/personal/api/recover.yaml#/schemas/RecoverEmailRequest'
+        ResetPasswordRequest:
+            $ref: './features/personal/api/recover.yaml#/schemas/ResetPasswordRequest'
+        ConfirmEmailRequest:
+            $ref: './features/personal/api/confirm.yaml#/schemas/ConfirmEmailRequest'
+        ResendCodeRequest:
+            $ref: './features/personal/api/resend.yaml#/schemas/ResendCodeRequest'
+
+        # Transactions
+        TransactionResponseArray:
+            $ref: './features/transactions/api/transactions.yaml#/schemas/TransactionResponseArray'
+        TransactionCreateRequest:
+            $ref: './features/transactions/api/transactions.yaml#/schemas/TransactionCreateRequest'
+        TransactionUpdateRequest:
+            $ref: './features/transactions/api/transactions.yaml#/schemas/TransactionUpdateRequest'
+        TransactionResponse:
+            $ref: './features/transactions/api/transactions.yaml#/schemas/TransactionResponse'
+
+        # SharedSchemas
+        ApiResponse:
+            $ref: './shared/api/schemas.yaml#/schemas/ApiResponse'
+        PageableResponse:
+            $ref: './shared/api/schemas.yaml#/schemas/PageableResponse'
+        BooleanResponse:
+            $ref: './shared/api/schemas.yaml#/schemas/BooleanResponse'
+        ProblemDetailsResponse:
+            $ref: './shared/api/schemas.yaml#/schemas/ProblemDetailsResponse'
+        ErrorResponse:
+            $ref: './shared/api/schemas.yaml#/schemas/ErrorResponse'
+        ValidationErrorResponse:
+            $ref: './shared/api/schemas.yaml#/schemas/ValidationErrorResponse'
+        ValidationErrorField:
+            $ref: './shared/api/schemas.yaml#/schemas/ValidationErrorField'

@@ -1,0 +1,461 @@
+path:
+    transactions:
+        get:
+            tags:
+                - Transactions
+            summary: Список транзакций
+            description: Список транзакций по фильтру
+            operationId: listTransactions
+            security:
+                -   JWT: []
+            parameters:
+                - name: accountId
+                  in: path
+                  required: true
+                  schema:
+                      type: integer
+                  description: Идентификатор счета
+                -   name: categoryId
+                    in: query
+                    required: false
+                    description: Идентификатор категории для фильтрации транзакций
+                    schema:
+                        type: integer
+
+                -   name: name
+                    in: query
+                    required: false
+                    description: Фильтрация по названию транзакции (частичное совпадение)
+                    schema:
+                        type: string
+
+                -   name: type
+                    in: query
+                    required: false
+                    description: Тип транзакции
+                    schema:
+                        type: string
+                        enum:
+                            - expense
+                            - income
+
+                -   name: amountFrom
+                    in: query
+                    required: false
+                    description: Минимальная сумма транзакции (включительно)
+                    schema:
+                        type: number
+                        format: decimal
+
+                -   name: amountTo
+                    in: query
+                    required: false
+                    description: Максимальная сумма транзакции (включительно)
+                    schema:
+                        type: number
+                        format: decimal
+
+                -   name: createdAtFrom
+                    in: query
+                    required: false
+                    description: Начальная дата и время (включительно)
+                    schema:
+                        type: string
+                        format: date-time
+
+                -   name: createdAtTo
+                    in: query
+                    required: false
+                    description: Конечная дата и время (включительно)
+                    schema:
+                        type: string
+                        format: date-time
+            responses:
+                200:
+                    description: Успешный ответ
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/schemas/TransactionResponseArray'
+                            examples:
+                                success:
+                                    $ref: '#/examples/TransactionResponseExample'
+
+                401:
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                            examples:
+                                unauthorized:
+                                    $ref: '../../../shared/api/examples.yaml#/examples/unauthorized'
+
+                404:
+                    description: Не найден
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                            examples:
+                                account_not_found:
+                                    $ref: '../../accounts/accounts.yaml#/examples/account_not_found'
+
+        post:
+            tags:
+                - Transactions
+            summary: Создание транзакции
+            description: Создание транзакции для счета
+            operationId: createTransaction
+            parameters:
+                - name: accountId
+                  required: true
+                  in: path
+                  schema:
+                      type: integer
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/schemas/TransactionCreateRequest'
+                        examples:
+                            default:
+                                summary: Запрос
+                                value:
+                                    name: Food
+                                    amount: -100
+                                    categoryId: 50
+                                    createdAt: 2026-01-01T10:05:00
+                                    latitude: 55.7558
+                                    longitude: 37.6178
+            responses:
+                201:
+                    description: Успешный ответ
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    -   $ref: '../../../shared/api/schemas.yaml#/schemas/ApiResponse'
+                                    -   type: object
+                                        properties:
+                                            data:
+                                                $ref: '#/schemas/TransactionResponse'
+                            examples:
+                                success:
+                                   $ref: '#/examples/TransactionResponseExample'
+
+                401:
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                            examples:
+                                unauthorized:
+                                    $ref: '../../../shared/api/examples.yaml#/examples/unauthorized'
+
+                404:
+                    description: Ресурс не найден
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                            examples:
+                                user_not_found:
+                                    $ref: '../../../shared/api/examples.yaml#/examples/user_not_found'
+                                account_not_found:
+                                    $ref: '../../accounts/accounts.yaml#/examples/account_not_found'
+                409:
+                    description: Бизнес ошибка
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                            examples:
+                                account_less_zero:
+                                    $ref: '../../accounts/accounts.yaml#/examples/account_less_zero'
+    transactionId:
+        put:
+            tags:
+                - Transactions
+            summary: Обновление транзакции
+            description: Обновление транзакции для счета
+            operationId: updateTransaction
+            parameters:
+                -   name: accountId
+                    in: path
+                    required: true
+                    schema:
+                        type: integer
+                -   name: transactionId
+                    in: path
+                    required: true
+                    schema:
+                        type: integer
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/schemas/TransactionCreateRequest'
+                        examples:
+                            default:
+                                summary: Запрос
+                                value:
+                                    name: Food
+                                    amount: -100
+                                    categoryId: 50
+                                    createdAt: 2026-01-01T10:05:00
+                                    latitude: 55.7558
+                                    longitude: 37.6178
+            responses:
+                200:
+                    description: Успешный ответ
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    -   $ref: '../../../shared/api/schemas.yaml#/schemas/ApiResponse'
+                                    -   type: object
+                                        properties:
+                                            data:
+                                                $ref: '#/schemas/TransactionResponse'
+                            examples:
+                                success:
+                                    $ref: '#/examples/TransactionResponseExample'
+
+                401:
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                            examples:
+                                unauthorized:
+                                    $ref: '../../../shared/api/examples.yaml#/examples/unauthorized'
+
+                404:
+                    description: Ресурс не найден
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                            examples:
+                                user_not_found:
+                                    $ref: '../../../shared/api/examples.yaml#/examples/user_not_found'
+                                transaction_not_found:
+                                    $ref: '#/examples/transaction_not_found'
+                409:
+                    description: Бизнес ошибка
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                            examples:
+                                account_less_zero:
+                                    $ref: '../../accounts/accounts.yaml#/examples/account_less_zero'
+        delete:
+            tags:
+                - Transactions
+            summary: Удаление транзакции
+            description: Удаление транзакции для счета
+            operationId: deleteTransaction
+            parameters:
+                -   name: accountId
+                    in: path
+                    required: true
+                    schema:
+                        type: integer
+                -   name: transactionId
+                    in: path
+                    required: true
+                    schema:
+                        type: integer
+            responses:
+                204:
+                    description: Успешный ответ
+                401:
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                            examples:
+                                unauthorized:
+                                    $ref: '../../../shared/api/examples.yaml#/examples/unauthorized'
+
+                404:
+                    description: Ресурс не найден
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                            examples:
+                                user_not_found:
+                                    $ref: '../../../shared/api/examples.yaml#/examples/user_not_found'
+                                transaction_not_found:
+                                    $ref: '#/examples/transaction_not_found'
+
+
+
+
+schemas:
+    TransactionResponseArray:
+        allOf:
+            -   $ref: '../../../shared/api/schemas.yaml#/schemas/PageableResponse'
+            -   properties:
+                    data:
+                        type: object
+                        properties:
+                            content:
+                                type: array
+                                items:
+                                    $ref: '#/schemas/TransactionResponse'
+                    meta:
+                        type: object
+                        properties:
+                            accountName:
+                                type: string
+                            accountCurrency:
+                                type: string
+
+    TransactionCreateRequest:
+        type: object
+        required:
+            - name
+            - amount
+            - createdAt
+            - latitude
+            - longitude
+        properties:
+            name:
+                type: string
+            categoryId:
+                type: integer
+            amount:
+                type: number
+            createdAt:
+                type: string
+                format: date-time
+            latitude:
+                type: number
+            longitude:
+                type: number
+
+    TransactionUpdateRequest:
+        type: object
+        required:
+            - name
+            - amount
+            - createdAt
+            - latitude
+            - longitude
+        properties:
+            name:
+                type: string
+            categoryId:
+                type: integer
+            amount:
+                type: number
+            createdAt:
+                type: string
+                format: date-time
+            latitude:
+                type: number
+            longitude:
+                type: number
+
+    TransactionResponse:
+        type: object
+        additionalProperties: false
+        required:
+            - id
+            - userId
+            - name
+            - accountName
+            - accountId
+            - categoryId
+            - categoryName
+            - amount
+            - createdAt
+            - latitude
+            - longitude
+        properties:
+            id:
+                type: integer
+            userId:
+                type: integer
+            name:
+                type: string
+            accountName:
+                type: string
+            accountId:
+                type: integer
+            categoryId:
+                type: integer
+            categoryName:
+                type: string
+            amount:
+                type: number
+            createdAt:
+                type: string
+                format: date-time
+            latitude:
+                type: number
+            longitude:
+                type: number
+
+examples:
+    TransactionResponseExample:
+        summary: Пример TransactionResponse
+        value:
+            success: true
+            data:
+                content:
+                     -  id: 3
+                        userId: 1
+                        name: Велосипед колесо
+                        accountName: Bank
+                        accountId: 10
+                        categoryId: 50
+                        categoryName: Fun
+                        amount: -100.00
+                        createdAt: 2026-01-01T10:05:00
+                        latitude: null
+                        longitude: null
+                pageable:
+                    pageNumber: 0
+                    pageSize: 10
+                    sort:
+                        sorted: true
+                        empty: false
+                        unsorted: false
+                    offset: 0
+                    paged: true
+                    unpaged: false
+                last: false
+                totalPages: 1
+                totalElements: 1
+                first: true
+                size: 10
+                number: 0
+                sort:
+                    sorted: true
+                    empty: false
+                    unsorted: false
+                numberOfElements: 10
+                empty: false
+            meta:
+                accountName: Bank
+                accountCurrency: USD
+    transaction_not_found:
+        summary: Транзакция не найдена
+        value:
+            type: about:blank
+            title: Business exception
+            status: 404
+            detail: Transaction not found
+            instance: /api/...
+            code: transaction_not_found
+    

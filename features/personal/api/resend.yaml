@@ -1,0 +1,62 @@
+path:
+    post:
+        tags:
+            - Personal
+        summary: Повторная отправка кода подтверждения регистрации
+        description: Принимает запрос на отправку кода
+        operationId: resend
+        requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/schemas/ResendCodeRequest'
+                    examples:
+                        default:
+                            summary: Запрос повторной отправки кода
+                            value:
+                                email: john@alive.local
+        responses:
+            '204':
+                description: Запрос успешно принят
+
+            '429':
+                description: Too many resend requests
+
+            '409':
+                description: Бизнес ошибка
+                content:
+                    application/json:
+                        schema:
+                            $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                        examples:
+                            email_already_confirmed:
+                                summary: Email уже подтвержден
+                                value:
+                                    type: about:blank
+                                    title: Business exception
+                                    status: 409
+                                    detail: Email already confirmed
+                                    instance: /api/personal/resend
+                                    code: email_already_confirmed
+
+            '404':
+                description: Пользователь не найден по email
+                content:
+                    application/json:
+                        schema:
+                            $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                        examples:
+                            user_not_found:
+                                $ref: '../../../shared/api/examples.yaml#/examples/user_not_found'
+
+schemas:
+    ResendCodeRequest:
+        type: object
+        additionalProperties: false
+        required:
+            - email
+        properties:
+            email:
+                type: string
+                format: email

@@ -1,0 +1,65 @@
+path:
+    post:
+        tags:
+            - Personal
+        summary: Подтверждение регистрации по коду
+        description: Принимает одноразовый код для подтверждения регистрации (users.role=USER)
+        operationId: confirm
+        requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/schemas/ConfirmEmailRequest'
+                    examples:
+                        default:
+                            summary: Запрос подтверждения по коду
+                            value:
+                                code: 1234
+                                email: john@alive.local
+        responses:
+            '204':
+                description: Успешное подтверждение
+
+            '409':
+                description: Бизнес ошибка
+                content:
+                    application/json:
+                        schema:
+                            $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                        examples:
+                            invalid_confirmation_code:
+                                summary: Неверный код подтверждения
+                                value:
+                                    type: about:blank
+                                    title: Business exception
+                                    status: 409
+                                    detail: Invalid confirmation code
+                                    instance: /api/personal/confirm
+                                    code: invalid_confirmation_code
+            '404':
+                description: Email не найден
+                content:
+                    application/json:
+                        schema:
+                            $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                        examples:
+                            user_not_found:
+                                $ref: '../../../shared/api/examples.yaml#/examples/user_not_found'
+
+schemas:
+    ConfirmEmailRequest:
+        type: object
+        additionalProperties: false
+        required:
+            - email
+            - code
+        properties:
+            email:
+                type: string
+                format: email
+            code:
+                type: string
+                pattern: '^\d{4}$'
+                example: '1234'
+

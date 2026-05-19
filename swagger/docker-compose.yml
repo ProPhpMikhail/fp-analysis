@@ -1,0 +1,15 @@
+services:
+    swagger-ui-dev:
+        build:
+            context: ..
+            dockerfile: swagger/Dockerfile
+        container_name: fp_swagger_ui_dev
+        ports:
+            - "127.0.0.1:8082:8080"
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        volumes:
+            - ../openapi.yaml:/usr/share/nginx/html/openapi.yaml:ro
+            - ../features:/usr/share/nginx/html/features:ro
+            - ../shared:/usr/share/nginx/html/shared:ro
+        profiles: [ "dev" ]

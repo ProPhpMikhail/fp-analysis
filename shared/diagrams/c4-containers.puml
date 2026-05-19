@@ -1,0 +1,33 @@
+@startuml
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+left to right direction
+
+title FINPLAN - Container Diagram
+
+Person(user, "User", "Использует FINPLAN через веб и Telegram")
+
+System_Boundary(finplan, "FINPLAN") {
+
+    Container(frontend, "Frontend", "Vue.js", "Web UI приложения")
+
+    Container(backend, "Backend", "Spring Boot", "REST API и бизнес логика")
+
+    ContainerDb(database, "PostgreSQL", "PostgreSQL", "Хранение данных пользователей и транзакций")
+
+    Container(bot, "Telegram Bot", "Node.js / Telegraf", "Управление транзакциями через Telegram")
+
+}
+
+Rel(user, frontend, "Использует", "HTTPS")
+
+Rel(user, bot, "Отправляет команды", "Telegram")
+
+Rel(frontend, backend, "REST API", "JSON/HTTPS")
+
+Rel(bot, backend, "Bot API", "HTTP/JSON")
+
+Rel(backend, database, "Чтение/запись данных", "JPA/SQL")
+
+@enduml

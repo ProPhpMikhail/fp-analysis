@@ -1,0 +1,63 @@
+@startuml
+
+title Авторизация "Google OAuth2"
+
+autonumber
+
+actor User
+participant Frontend
+participant "Spring Security" as Security
+participant "Google OAuth2" as Google
+participant "OAuth2 SuccessHandler" as Handler
+database PostgreSQL
+participant "JWT Service" as JwtService
+
+User -> Frontend: Нажал "Login with Google"
+Frontend -> Security: GET /oauth2/authorization/google
+
+Security -> Security: Подготовить OAuth2 state
+Security -> Security: Сохранить сессию авторизации и state
+Security --> Frontend: 302 redirect to Google
+
+Frontend -> Google: Открыть авторизацию Google
+User -> Google: Дать согласие и авторизоваться
+
+Google --> Security: GET /login/oauth2/code/google?code=...&state=...
+
+Security -> Security: Провалидировать state из сессии
+Security -> Google: Обменять code на access token
+Google --> Security: access token
+
+Security -> Google: Запросить данные пользователя
+Google --> Security: Данные пользователя
+
+Security -> Handler: onAuthenticationSuccess(...authData)
+
+Handler -> Handler: Извлечение атрибутов пользователя
+Handler -> PostgreSQL: findByGoogleSub(sub)
+
+alt Пользователь найден по Google sub
+    PostgreSQL --> Handler: Пользователь
+else Пользователь не найден по Google sub
+    Handler -> PostgreSQL: findByEmail(email)
+
+    alt Пользователь найден по email
+        PostgreSQL --> Handler: Пользователь
+        Handler -> PostgreSQL: Привязать Google sub к полученному пользователю
+    else Пользователь не найден по email
+        PostgreSQL --> Handler: Пользователь не найден
+        Handler -> PostgreSQL: Создать пользователя
+        PostgreSQL --> Handler: Пользователь
+    end
+end
+
+Handler -> JwtService: generateToken(userDetails)
+JwtService --> Handler: JWT
+
+Handler -> Handler: Удалить сессию OAuth2
+Handler --> Frontend: 302 Redirect /oauth/success?token=JWT
+
+Frontend -> Frontend: Сохранить JWT
+Frontend --> User: Пользователь авторизован
+
+@enduml

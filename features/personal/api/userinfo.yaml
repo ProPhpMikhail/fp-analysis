@@ -1,0 +1,147 @@
+path:
+    get:
+        tags:
+            - Personal
+        summary: Получение данных пользователя
+        description: Получение данных пользователя
+        operationId: getUserInfo
+        security:
+            - JWT: []
+        responses:
+            200:
+                description: Ответ
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/schemas/UserInfo'
+                        examples:
+                            success:
+                                $ref: '#/examples/success'
+            401:
+                description: Unauthorized
+                content:
+                    application/json:
+                        schema:
+                            $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                        examples:
+                            unauthorized:
+                                $ref: '../../../shared/api/examples.yaml#/examples/unauthorized'
+            404:
+                description: Пользователь не найден
+                content:
+                    application/json:
+                        schema:
+                            $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                        examples:
+                            user_not_found:
+                                $ref: '../../../shared/api/examples.yaml#/examples/user_not_found'
+    patch:
+        tags:
+            - Personal
+        summary: Обновление данных пользователя
+        description: Обновление данных пользователя
+        operationId: setUserInfo
+        security:
+            - JWT: []
+        requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/schemas/UserInfoCreate'
+                    examples:
+                        default:
+                            summary: Пример запроса
+                            value:
+                                firstName: John
+                                lastName: Doe
+                                phone: '+79996663333'
+        responses:
+            200:
+                description: Ответ
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/schemas/UserInfo'
+                        examples:
+                            success:
+                                $ref: '#/examples/success'
+                                
+            401:
+                description: Unauthorized
+                content:
+                    application/json:
+                        schema:
+                            $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                        examples:
+                            unauthorized:
+                                $ref: '../../../shared/api/examples.yaml#/examples/unauthorized'
+            404:
+                description: Пользователь не найден
+                content:
+                    application/json:
+                        schema:
+                            $ref: '../../../shared/api/schemas.yaml#/schemas/ErrorResponse'
+                        examples:
+                            user_not_found:
+                                $ref: '../../../shared/api/examples.yaml#/examples/user_not_found'
+
+schemas:
+    UserInfoCreate:
+        type: object
+        additionalProperties: false
+        required:
+            - firstName
+            - lastName
+            - phone
+        properties:
+            firstName:
+                type: string
+            lastName:
+                type: string
+            phone:
+                type: string
+    UserInfo:
+        allOf:
+            -   $ref: '../../../shared/api/schemas.yaml#/schemas/ApiResponse'
+            -   type: object
+                properties:
+                    data:
+                        type: object
+                        nullable: false
+                        additionalProperties: false
+                        required:
+                            - email
+                            - firstName
+                            - lastName
+                            - phone
+                            - role
+                        properties:
+                            email:
+                                type: string
+                                format: email
+                            role:
+                                type: string
+                                enum:
+                                    - ADMIN
+                                    - USER
+                            firstName:
+                                type: string
+                                nullable: true
+                            lastName:
+                                type: string
+                                nullable: true
+                            phone:
+                                type: string
+                                nullable: true
+examples:
+    success:
+        summary: Пример ответа
+        value:
+            success: true
+            data:
+                email: john@alive.local
+                firstName: John
+                lastName: Doe
+                phone: '+79996663333'
+                role: USER
